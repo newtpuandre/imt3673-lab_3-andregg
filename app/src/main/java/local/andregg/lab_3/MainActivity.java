@@ -53,11 +53,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             float ACC = (float) Math.sqrt(x*x + y*y + z*z) - EarthGravity;
 
             if (ACC >= 10) { //TODO: change to slider in preferences
-
+                float t = ACC / EarthGravity;
 
             }
         }
     }
 
+    public void heightCalculation(float acceleration, float time){
+        //Count to time and play sound
+
+        //Calculate height and get high score if it is higher
+    }
 
 }
