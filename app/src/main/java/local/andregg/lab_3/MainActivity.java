@@ -1,6 +1,7 @@
 package local.andregg.lab_3;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -16,6 +17,7 @@ import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView highscore;
     private TextView throwStatus;
     private TextView highscoreStatus;
+    private Button preferencebtn;
     private MediaPlayer mp;
 
     ArrayList<Float> test;
@@ -52,9 +55,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         highscore = findViewById(R.id.highscore_txt);
         throwStatus = findViewById(R.id.throwstatus_txt);
         highscoreStatus = findViewById(R.id.highscorestatus_txt);
+
+        preferencebtn = findViewById(R.id.preference_button);
+
         mp = MediaPlayer.create(this, R.raw.popsound);
 
         test = new ArrayList<>();
+
+        //Transfer button logic
+        preferencebtn.setOnClickListener(v -> {
+            Intent I = new Intent(MainActivity.this, PreferenceActivity.class);
+            //I.putExtra("TransactionLog", transactions);
+
+            startActivity(I);
+        });
     }
 
     protected void onPause() {
@@ -77,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float biggestAcc;
 
             float x = event.values[0];
             float y = event.values[1];
