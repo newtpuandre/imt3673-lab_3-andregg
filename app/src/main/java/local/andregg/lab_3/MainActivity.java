@@ -30,7 +30,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView currentHeight;
     private TextView highscore;
     private TextView throwStatus;
+    private TextView highscoreStatus;
     private MediaPlayer mp;
+
+    ArrayList<Float> test;
 
     private final float EarthGravity = 9.81f;
     private boolean inAir = false;
@@ -48,8 +51,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         currentHeight = findViewById(R.id.currentheight_txt);
         highscore = findViewById(R.id.highscore_txt);
         throwStatus = findViewById(R.id.throwstatus_txt);
+        highscoreStatus = findViewById(R.id.highscorestatus_txt);
         mp = MediaPlayer.create(this, R.raw.popsound);
 
+        test = new ArrayList<>();
     }
 
     protected void onPause() {
@@ -80,21 +85,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             float ACC = (float) Math.sqrt(x*x + y*y + z*z) - EarthGravity;
 
-            if (ACC >= 40 && !inAir) { //TODO: change to slider in preferences
-                heightCalculation(ACC);
+            if (ACC >= 15 && !inAir) { //TODO: change to slider in preferences
+                test.add(ACC);
+                if(test.size() >= 4) {
+                    inAir = true;
+                    findHighestAcc();
+                }
+                //heightCalculation(ACC);
+                Log.d("app1", "" + ACC);
             }
         }
     }
 
+    public void findHighestAcc(){
+        float highestAcc = 0;
+        for (int i = 0; i < test.size(); i++) {
+            float temp = test.get(i);
+            if ( temp > highestAcc) {
+                highestAcc = temp;
+            }
+        }
+        Log.d("app1", "Highest Acc" + highestAcc);
+        heightCalculation(highestAcc);
+        test.clear();
+    }
 
     public void heightCalculation(final float acceleration){
         //Set textboxes etc
-        inAir = true;
+        highscoreStatus.setText("");
         v.vibrate(500);
         final float t = acceleration / EarthGravity;
         final float s = acceleration * t + 1/2 * -EarthGravity * (float) Math.pow(t,2);
-        //Count to time and play sound
-        //Calculate height and get high score if it is higher
 
         updateText( (int) t * 1000, s);
 
@@ -112,13 +133,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if(!atTop) {
                     curHeight += countNumber;
                     currentHeight.setText(String.valueOf(curHeight));
-                    Log.d("app1", "countNumber " + countNumber + " " + maxHeight / maxtime);
                 }
 
                 if ((float) millisUntilFinished <= (maxtime) && !atTop) {
-                    Log.d("app1", "At the top" + millisUntilFinished);
                     currentHeight.setText(String.valueOf(maxHeight));
-                    Log.d("app1", "" + maxHeight);
                     throwStatus.setText("Reached the top!");
                     mp.start();
                     atTop = true;
@@ -129,12 +147,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onFinish() {
                 inAir = false;
                 throwStatus.setText("Landed... Throw again!");
-                Log.d("app1", "Bottom" );
                 v.vibrate(200);
 
                 float curHighscore = Float.valueOf(highscore.getText().toString());
-                Log.d("app1", "HIGHSCORE" + curHighscore);
                 if(maxHeight >= curHighscore) {
+                    highscoreStatus.setText("New Highscore!");
                     highscore.setText(String.valueOf(maxHeight));
                 }
             }
