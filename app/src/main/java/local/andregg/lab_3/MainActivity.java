@@ -36,7 +36,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Button preferencebtn;
     private MediaPlayer mp;
 
-    ArrayList<Float> test;
+    private int MIN_ACC = 20;
+    private int SLIDINGWINDOW_SIZE = 4;
+
+    public static final int REQUEST_CODE = 1;
+
+    ArrayList<Float> SlidingWindow;
 
     private final float EarthGravity = 9.81f;
     private boolean inAir = false;
@@ -60,14 +65,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         mp = MediaPlayer.create(this, R.raw.popsound);
 
-        test = new ArrayList<>();
+        SlidingWindow = new ArrayList<>();
 
-        //Transfer button logic
         preferencebtn.setOnClickListener(v -> {
             Intent I = new Intent(MainActivity.this, PreferenceActivity.class);
-            //I.putExtra("TransactionLog", transactions);
-
-            startActivity(I);
+            I.putExtra("MIN_ACC", MIN_ACC);
+            startActivityForResult(I, REQUEST_CODE);
         });
     }
 
@@ -81,12 +84,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.registerListener(this,sensor,sensorManager.SENSOR_DELAY_NORMAL);
     }
 
-
+    // This method is invoked when target activity return result data back.
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent dataIntent) {
+        super.onActivityResult(requestCode, resultCode, dataIntent);
+        switch (requestCode)
+        {
+            case REQUEST_CODE:
+                if(resultCode == RESULT_OK)
+                {
+                    MIN_ACC = dataIntent.getIntExtra("MIN_ACC", 0);
+                }
+        }
+    }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -98,33 +111,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             float ACC = (float) Math.sqrt(x*x + y*y + z*z) - EarthGravity;
 
-            if (ACC >= 15 && !inAir) { //TODO: change to slider in preferences
-                test.add(ACC);
-                if(test.size() >= 4) {
+            if (ACC >= MIN_ACC && !inAir) {
+                SlidingWindow.add(ACC);
+                if(SlidingWindow.size() >= SLIDINGWINDOW_SIZE) {
                     inAir = true;
                     findHighestAcc();
                 }
-                //heightCalculation(ACC);
-                Log.d("app1", "" + ACC);
             }
         }
     }
 
     public void findHighestAcc(){
         float highestAcc = 0;
-        for (int i = 0; i < test.size(); i++) {
-            float temp = test.get(i);
+        for (int i = 0; i < SlidingWindow.size(); i++) {
+            float temp = SlidingWindow.get(i);
             if ( temp > highestAcc) {
                 highestAcc = temp;
             }
         }
-        Log.d("app1", "Highest Acc" + highestAcc);
         heightCalculation(highestAcc);
-        test.clear();
+        SlidingWindow.clear();
     }
 
     public void heightCalculation(final float acceleration){
-        //Set textboxes etc
         highscoreStatus.setText("");
         v.vibrate(500);
         final float t = acceleration / EarthGravity;
@@ -153,6 +162,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     throwStatus.setText("Reached the top!");
                     mp.start();
                     atTop = true;
+
+                    float curHighscore = Float.valueOf(highscore.getText().toString());
+                    if(maxHeight >= curHighscore) {
+                        highscoreStatus.setText("New Highscore!");
+                        highscore.setText(String.valueOf(maxHeight));
+                    }
+
                 }
 
             }
@@ -161,12 +177,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 inAir = false;
                 throwStatus.setText("Landed... Throw again!");
                 v.vibrate(200);
-
-                float curHighscore = Float.valueOf(highscore.getText().toString());
-                if(maxHeight >= curHighscore) {
-                    highscoreStatus.setText("New Highscore!");
-                    highscore.setText(String.valueOf(maxHeight));
-                }
             }
         }.start();
 

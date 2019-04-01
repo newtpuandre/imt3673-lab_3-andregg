@@ -25,7 +25,7 @@
 
     <SeekBar
         android:id="@+id/sensitivity_seek"
-        android:layout_width="140dp"
+        android:layout_width="279dp"
         android:layout_height="22dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -46,10 +46,41 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="100dp"
-        android:text="TextView"
+        android:text="10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.461"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sensitivity_seek"
+        app:layout_constraintVertical_bias="0.03" />
+
+    <TextView
+        android:id="@+id/sensitivity_txt2"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="100dp"
+        android:text="m/s"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/sensitivity_txt"
+        app:layout_constraintTop_toBottomOf="@+id/sensitivity_seek"
+        app:layout_constraintVertical_bias="0.03" />
+
+    <Button
+        android:id="@+id/save_btn"
+        android:layout_width="156dp"
+        android:layout_height="73dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="Save Preferences"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sensitivity_seek"
-        app:layout_constraintVertical_bias="0.033" />
+        app:layout_constraintTop_toBottomOf="@+id/sensitivity_txt2" />
 </android.support.constraint.ConstraintLayout>
