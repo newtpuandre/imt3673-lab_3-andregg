@@ -1,5 +1,6 @@
 #IMT3673 Lab 3
 
+#### The "Sliding Window" problem was solved by adding sensor readings to a list when it was over the threshold. I then find the highest out of the 4 readings and do the calculation. It feels fine.
 
 ## Checklist
 
