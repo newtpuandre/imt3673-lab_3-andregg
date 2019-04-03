@@ -167,36 +167,36 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         throwStatus.setText("In the air.."); //Set text
         new CountDownTimer((long) maxtime * 2, 100) {
 
-            float countNumber = ((maxHeight / maxtime)) * 100 ;
-            float curHeight;
-            boolean atTop = false;
+            float countNumber = ((maxHeight / maxtime)) * 100 ; //Find amount of ticks to do
+            float curHeight; //Variable holding current height
+            boolean atTop = false; //Keeping track of state
             public void onTick(long millisUntilFinished) {
 
-                if(!atTop) {
-                    curHeight += countNumber;
+                if(!atTop) { //Not at top
+                    curHeight += countNumber; //Keep counting height
                     currentHeight.setText(String.valueOf(curHeight));
                 }
 
-                if ((float) millisUntilFinished <= (maxtime) && !atTop) {
+                if ((float) millisUntilFinished <= (maxtime) && !atTop) { //We reached the top
                     currentHeight.setText(String.valueOf(maxHeight));
                     throwStatus.setText("Reached the top!");
-                    mp.start();
+                    mp.start(); //Play sound
                     atTop = true;
 
                     float curHighscore = Float.valueOf(highscore.getText().toString());
-                    if(maxHeight >= curHighscore) {
+                    if(maxHeight >= curHighscore) { //Set new highscore
                         highscoreStatus.setText("New Highscore!");
                         highscore.setText(String.valueOf(maxHeight));
                     }
                 }
             }
 
-            public void onFinish() {
+            public void onFinish() { //Reset variables.
                 inAir = false;
                 throwStatus.setText("Landed... Throw again!");
                 v.vibrate(200);
             }
-        }.start();
+        }.start(); //Start countdown
 
     }
 

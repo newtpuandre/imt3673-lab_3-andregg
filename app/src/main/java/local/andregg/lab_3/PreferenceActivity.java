@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 public class PreferenceActivity extends AppCompatActivity {
 
+    //UI Element variables
     private SeekBar sensitivitySlider;
     private TextView sensitivty_text;
     private Button saveBtn;
@@ -20,14 +21,19 @@ public class PreferenceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preference);
 
+        //Setup UI elements
         sensitivitySlider = findViewById(R.id.sensitivity_seek);
         sensitivty_text = findViewById(R.id.sensitivity_txt);
         saveBtn = findViewById(R.id.save_btn);
 
+        //Set max value
         sensitivitySlider.setMax(30);
 
+        //Get intent passed when activity started
         Intent Intent = getIntent();
         int temp_min_acc = Intent.getIntExtra("MIN_ACC", 10) - 10;
+
+        //Set slider progress
         sensitivitySlider.setProgress(temp_min_acc);
 
         sensitivty_text.setText(String.valueOf(sensitivitySlider.getProgress() + 10));
@@ -47,12 +53,18 @@ public class PreferenceActivity extends AppCompatActivity {
         });
 
         saveBtn.setOnClickListener(v -> {
+            //Create a new intent
             Intent I = new Intent();
+            //Put extras
             I.putExtra("MIN_ACC", sensitivitySlider.getProgress() + 10);
+
+            //Save preference
             SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, MODE_PRIVATE).edit();
             editor.putInt("MIN_ACC", sensitivitySlider.getProgress() + 10);
             editor.apply();
+            //Set result
             setResult(RESULT_OK, I);
+            //Finish activity
             finish();
         });
     }
