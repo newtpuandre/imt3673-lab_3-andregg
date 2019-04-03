@@ -2,6 +2,7 @@ package local.andregg.lab_3;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
+    public static final String PREFS_NAME = "BallThrowGame";
+
     private SensorManager sensorManager;
     private Sensor sensor;
     private Vibrator v;
@@ -58,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mp = MediaPlayer.create(this, R.raw.popsound);
 
         SlidingWindow = new ArrayList<>();
+
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        MIN_ACC = prefs.getInt("MIN_ACC", 20);
 
         preferencebtn.setOnClickListener(v -> {
             Intent I = new Intent(MainActivity.this, PreferenceActivity.class);

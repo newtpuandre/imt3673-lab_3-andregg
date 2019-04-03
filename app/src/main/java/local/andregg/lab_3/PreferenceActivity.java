@@ -1,6 +1,7 @@
 package local.andregg.lab_3;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
@@ -48,6 +49,9 @@ public class PreferenceActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(v -> {
             Intent I = new Intent();
             I.putExtra("MIN_ACC", sensitivitySlider.getProgress() + 10);
+            SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, MODE_PRIVATE).edit();
+            editor.putInt("MIN_ACC", sensitivitySlider.getProgress() + 10);
+            editor.apply();
             setResult(RESULT_OK, I);
             finish();
         });
