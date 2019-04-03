@@ -18,27 +18,38 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
+    //Shared pref variable
     public static final String PREFS_NAME = "BallThrowGame";
 
+    //Sensor Variables
     private SensorManager sensorManager;
     private Sensor sensor;
+
+    //Vibration variables
     private Vibrator v;
 
+    //UI element variables
     private TextView currentHeight;
     private TextView highscore;
     private TextView throwStatus;
     private TextView highscoreStatus;
     private Button preferencebtn;
+
+    //Media player for playing sound at top
     private MediaPlayer mp;
 
+    //Constants for calculations
     private int MIN_ACC = 20;
     private int SLIDINGWINDOW_SIZE = 4;
+    private final float EarthGravity = 9.81f;
 
+    //Return code for preference activity
     public static final int REQUEST_CODE = 1;
 
+    //Holding last SLIDINGWINDOWS_SIZE amount of sensor reading
     ArrayList<Float> SlidingWindow;
 
-    private final float EarthGravity = 9.81f;
+    //Bool for keeping track of ball state
     private boolean inAir = false;
 
     @Override
@@ -46,25 +57,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Setup sensormanager and accelerometer
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this,sensor,sensorManager.SENSOR_DELAY_NORMAL);
+
+        //Setup the vibration
         v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
+        //Setup the UI elements
         currentHeight = findViewById(R.id.currentheight_txt);
         highscore = findViewById(R.id.highscore_txt);
         throwStatus = findViewById(R.id.throwstatus_txt);
         highscoreStatus = findViewById(R.id.highscorestatus_txt);
-
         preferencebtn = findViewById(R.id.preference_button);
 
+        //Setup the MediaPlayer
         mp = MediaPlayer.create(this, R.raw.popsound);
 
+        //Initialize the Array List
         SlidingWindow = new ArrayList<>();
 
+        //Setup and get shared preference
         SharedPreferences prefs = getApplicationContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         MIN_ACC = prefs.getInt("MIN_ACC", 20);
 
+        //Handle button press
         preferencebtn.setOnClickListener(v -> {
             Intent I = new Intent(MainActivity.this, PreferenceActivity.class);
             I.putExtra("MIN_ACC", MIN_ACC);
@@ -101,48 +119,52 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        //Only do stuff for the accelerometer
         if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
+            //accelerometer readings
             float x = event.values[0];
             float y = event.values[1];
             float z = event.values[2];
 
+            //Calculate acceleration
             float ACC = (float) Math.sqrt(x*x + y*y + z*z) - EarthGravity;
 
+            //Is larger that threshold and not in air.
             if (ACC >= MIN_ACC && !inAir) {
-                SlidingWindow.add(ACC);
-                if(SlidingWindow.size() >= SLIDINGWINDOW_SIZE) {
-                    inAir = true;
-                    findHighestAcc();
+                SlidingWindow.add(ACC); //Add Acceleration to ArrayList
+                if(SlidingWindow.size() >= SLIDINGWINDOW_SIZE) { //Is list larger than SlidingWindowSize?
+                    inAir = true; //We are in the air
+                    findHighestAcc(); //Find highest acceleration
                 }
             }
         }
     }
 
     public void findHighestAcc(){
-        float highestAcc = 0;
-        for (int i = 0; i < SlidingWindow.size(); i++) {
-            float temp = SlidingWindow.get(i);
-            if ( temp > highestAcc) {
+        float highestAcc = 0; //Temp value
+        for (int i = 0; i < SlidingWindow.size(); i++) { //Loop over array
+            float temp = SlidingWindow.get(i); //Get element I
+            if ( temp > highestAcc) { //Save if higher than the one stored.
                 highestAcc = temp;
             }
         }
-        heightCalculation(highestAcc);
-        SlidingWindow.clear();
+        heightCalculation(highestAcc); //Calculate height
+        SlidingWindow.clear(); //Clear SlidingWindows arraylist
     }
 
     public void heightCalculation(final float acceleration){
-        highscoreStatus.setText("");
-        v.vibrate(500);
-        final float t = acceleration / EarthGravity;
-        final float s = acceleration * t + 1/2 * -EarthGravity * (float) Math.pow(t,2);
+        highscoreStatus.setText(""); //Clear text
+        v.vibrate(500);  //Vibrate indicating ball leaving hand.
+        final float t = acceleration / EarthGravity; //Get time til top
+        final float s = acceleration * t + 1/2 * -EarthGravity * (float) Math.pow(t,2); //Get max height.
 
         updateText( (int) t * 1000, s);
 
     }
 
     private void updateText(final int maxtime, final float maxHeight) {
-        throwStatus.setText("In the air..");
+        throwStatus.setText("In the air.."); //Set text
         new CountDownTimer((long) maxtime * 2, 100) {
 
             float countNumber = ((maxHeight / maxtime)) * 100 ;
@@ -166,9 +188,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         highscoreStatus.setText("New Highscore!");
                         highscore.setText(String.valueOf(maxHeight));
                     }
-
                 }
-
             }
 
             public void onFinish() {
